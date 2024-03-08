@@ -6,7 +6,9 @@ resource "aws_s3_bucket" "access_log_bucket" {
   bucket_prefix = "${var.access_log_bucket_name}-"
   force_destroy = true
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "b6e101ee-3c0e-44db-bc69-2b74d80282bd"
+  })
 
 
 }
@@ -20,7 +22,7 @@ resource "aws_s3_bucket_ownership_controls" "access_log_bucket" {
 
 resource "aws_s3_bucket_acl" "access_log_bucket" {
   bucket = aws_s3_bucket.access_log_bucket.id
-  acl = "log-delivery-write"
+  acl    = "log-delivery-write"
 
   depends_on = [aws_s3_bucket_ownership_controls.access_log_bucket]
 }

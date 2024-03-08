@@ -43,7 +43,9 @@ data "aws_iam_policy_document" "kms_access" {
 resource "aws_iam_role" "ssm_role" {
   name_prefix = "ssm_role-"
   path        = "/"
-  tags        = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "6b3fe298-768d-4650-9134-5f0584732557"
+  })
 
   assume_role_policy = <<EOF
 {
@@ -131,6 +133,9 @@ resource "aws_iam_policy" "ssm_s3_cwl_access" {
   name   = "ssm_s3_cwl_access-${local.region}"
   path   = "/"
   policy = data.aws_iam_policy_document.ssm_s3_cwl_access.json
+  tags = {
+    yor_trace = "bb74cab6-07fb-4c6d-a77b-928daa55b295"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "SSM-role-policy-attach" {
@@ -146,4 +151,7 @@ resource "aws_iam_role_policy_attachment" "SSM-s3-cwl-policy-attach" {
 resource "aws_iam_instance_profile" "ssm_profile" {
   name_prefix = "ssm_profile-"
   role        = aws_iam_role.ssm_role.name
+  tags = {
+    yor_trace = "0b6cd908-eb3c-4653-8358-7f79ec12b4c5"
+  }
 }

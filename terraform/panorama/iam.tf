@@ -19,7 +19,9 @@ resource "aws_iam_role" "panorama_read_only_role" {
     ]
 }
 EOF
-  tags               = var.global_tags
+  tags = merge(var.global_tags, {
+    yor_trace = "a80feab5-222c-43be-b1bf-dd409b756ec0"
+  })
 }
 
 data "aws_iam_policy" "iam_policy_arn" {
@@ -43,4 +45,7 @@ resource "aws_iam_instance_profile" "panorama_instance_profile" {
 
   name = "${var.prefix_name_tag}panorama_iam_att_profile"
   role = var.panorama_existing_iam_role_name != "" ? var.panorama_existing_iam_role_name : aws_iam_role.panorama_read_only_role[0].name
+  tags = {
+    yor_trace = "809d77f2-479a-4f4f-98c5-4371978d541a"
+  }
 }

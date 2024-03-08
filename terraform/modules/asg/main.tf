@@ -15,11 +15,11 @@ data "aws_ami" "pa-vm" {
 }
 
 resource "aws_launch_configuration" "this" {
-  name_prefix   = var.prefix_name_tag
-  ebs_optimized = true
-  image_id      = data.aws_ami.pa-vm.id
-  instance_type = var.fw_instance_type
-  key_name      = var.ssh_key_name
+  name_prefix     = var.prefix_name_tag
+  ebs_optimized   = true
+  image_id        = data.aws_ami.pa-vm.id
+  instance_type   = var.fw_instance_type
+  key_name        = var.ssh_key_name
   security_groups = var.asg_interface["security_groups"]
   #iam_instance_profile = var.iam_instance_profile
 
@@ -44,19 +44,19 @@ locals {
 }
 
 resource "aws_autoscaling_group" "this" {
-  name                = "${var.prefix_name_tag}asg1"
-  desired_capacity    = var.desired_capacity
-  max_size            = var.max_size
-  min_size            = var.min_size
+  name             = "${var.prefix_name_tag}asg1"
+  desired_capacity = var.desired_capacity
+  max_size         = var.max_size
+  min_size         = var.min_size
 
   vpc_zone_identifier = var.asg_interface["subnets"]
 
   launch_configuration = aws_launch_configuration.this.name
 
   initial_lifecycle_hook {
-    name                   = "${var.prefix_name_tag}launch"
+    name                 = "${var.prefix_name_tag}launch"
     default_result       = "CONTINUE"
-    heartbeat_timeout      = var.lifecycle_hook_timeout
+    heartbeat_timeout    = var.lifecycle_hook_timeout
     lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
 
     notification_metadata = <<EOF
@@ -64,11 +64,11 @@ ${var.lifecycle_hook_metadata}
 EOF
   }
 
-  tags                = concat(local.asg_tags, [{ key = "Name", value = var.autoscaling_name_tag, propagate_at_launch = true}])
+  tags = concat(local.asg_tags, [{ key = "Name", value = var.autoscaling_name_tag, propagate_at_launch = true }])
 
   lifecycle { // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-3-upgrade#resource-aws_autoscaling_group
     create_before_destroy = true
-    ignore_changes = [ load_balancers, target_group_arns ]
+    ignore_changes        = [load_balancers, target_group_arns]
   }
 
 }
@@ -104,6 +104,9 @@ resource "aws_iam_role" "this" {
   ]
 }
 EOF
+  tags = {
+    yor_trace = "65735303-5799-44bd-9037-92bd1b6fe3e3"
+  }
 }
 
 # Attach IAM Policy to IAM role for Lambda
@@ -151,8 +154,10 @@ resource "aws_lambda_function" "this" {
   handler          = "lambda.lambda_handler"
   source_code_hash = filebase64sha256("${path.module}/lambda_payload.zip")
   runtime          = "python3.8"
-  tags             = var.global_tags
-  timeout          = var.lambda_timeout
+  tags = merge(var.global_tags, {
+    yor_trace = "7cf3c238-91ae-4b93-b60b-f548a2a3c19f"
+  })
+  timeout = var.lambda_timeout
 }
 
 resource "aws_lambda_permission" "this" {
@@ -164,8 +169,10 @@ resource "aws_lambda_permission" "this" {
 }
 
 resource "aws_cloudwatch_event_rule" "this" {
-  name          = "${var.prefix_name_tag}add_nics"
-  tags          = var.global_tags
+  name = "${var.prefix_name_tag}add_nics"
+  tags = merge(var.global_tags, {
+    yor_trace = "04419695-6109-46ba-a9a8-1647e9b2c718"
+  })
   event_pattern = <<EOF
 {
   "source": [

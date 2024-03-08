@@ -36,7 +36,9 @@ resource "aws_instance" "this" {
     delete_on_termination = true
   }
 
-  tags = merge(var.global_tags, { Name = var.name })
+  tags = merge(var.global_tags, { Name = var.name }, {
+    yor_trace = "3e8b4ad9-e863-4087-b6ec-d5fc789d2482"
+  })
 }
 
 # Create Elastic IP
@@ -46,7 +48,9 @@ resource "aws_eip" "this" {
   instance = aws_instance.this.id
   vpc      = true
 
-  tags = merge(var.global_tags, { Name = var.name })
+  tags = merge(var.global_tags, { Name = var.name }, {
+    yor_trace = "211575ae-e947-4124-8a7b-868deebe4f2e"
+  })
 }
 
 resource "aws_ebs_volume" "this" {
@@ -57,7 +61,9 @@ resource "aws_ebs_volume" "this" {
   encrypted         = try(each.value.ebs_encrypted, false)
   kms_key_id        = try(var.ebs_kms_key_alias, null)
 
-  tags = merge(var.global_tags, { Name = try(each.value.name, var.name) })
+  tags = merge(var.global_tags, { Name = try(each.value.name, var.name) }, {
+    yor_trace = "11b980ae-1874-4dc2-b21e-64ccb22f5d9b"
+  })
 }
 
 resource "aws_volume_attachment" "this" {
