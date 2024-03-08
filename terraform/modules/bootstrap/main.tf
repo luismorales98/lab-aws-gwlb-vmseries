@@ -22,7 +22,9 @@ resource "random_id" "bucket_id" {
 resource "aws_s3_bucket" "this" {
   bucket = "${var.prefix}-${random_id.bucket_id.hex}"
   #acl    = "private"
-  tags   = var.global_tags
+  tags = merge(var.global_tags, {
+    yor_trace = "fb69da21-8e8a-4506-861b-6e67e8bf3bcc"
+  })
 }
 
 resource "aws_s3_bucket_acl" "this" {
@@ -36,6 +38,9 @@ resource "aws_s3_bucket_object" "bootstrap_dirs" {
   bucket  = aws_s3_bucket.this.id
   key     = each.value
   content = "/dev/null"
+  tags = {
+    yor_trace = "323aa97a-83b9-4f94-be6a-6852b40ee156"
+  }
 }
 
 resource "aws_s3_bucket_object" "init_cfg" {
@@ -54,6 +59,9 @@ resource "aws_s3_bucket_object" "init_cfg" {
       "op-command-modes" = var.op-command-modes
     }
   )
+  tags = {
+    yor_trace = "e08e2cc9-685c-48eb-91e3-aaf80d164ed9"
+  }
 }
 
 resource "aws_s3_bucket_object" "bootstrap_files" {
@@ -62,12 +70,17 @@ resource "aws_s3_bucket_object" "bootstrap_files" {
   bucket = aws_s3_bucket.this.id
   key    = each.value
   source = "${path.root}/files/${each.value}"
+  tags = {
+    yor_trace = "980b8337-6c9d-42e8-9d8e-d0e7e2079ba1"
+  }
 }
 
 resource "aws_iam_role" "this" {
   name = "${var.prefix}-${random_id.bucket_id.hex}"
 
-  tags               = var.global_tags
+  tags = merge(var.global_tags, {
+    yor_trace = "8eac4add-0051-4a30-9f40-0724ff8f8efe"
+  })
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -110,4 +123,7 @@ resource "aws_iam_instance_profile" "this" {
   name = "${var.prefix}-${random_id.bucket_id.hex}"
   role = aws_iam_role.this.name
   path = "/"
+  tags = {
+    yor_trace = "2449a0b1-a47c-4d8d-baab-631de31db4f8"
+  }
 }
