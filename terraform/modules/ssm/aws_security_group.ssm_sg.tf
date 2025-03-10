@@ -21,5 +21,7 @@ resource "aws_security_group" "ssm_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "10179471-ad6c-4d55-84c0-828348b92cc1"
+  })
 }

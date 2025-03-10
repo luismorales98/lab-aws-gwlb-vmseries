@@ -56,6 +56,9 @@ resource "aws_cloudwatch_metric_alarm" "up" {
   threshold           = "70"
   alarm_actions       = [aws_autoscaling_policy.up.arn]
   dimensions          = { AutoScalingGroupName = module.asg.asg.name }
+  tags = {
+    yor_trace = "95641328-7393-43f2-81fc-1f8bc189f925"
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "down" {
@@ -69,6 +72,9 @@ resource "aws_cloudwatch_metric_alarm" "down" {
   threshold           = "10"
   alarm_actions       = [aws_autoscaling_policy.down.arn]
   dimensions          = { AutoScalingGroupName = module.asg.asg.name }
+  tags = {
+    yor_trace = "889bab1a-1240-4e52-a2e3-79b51bb5c3b2"
+  }
 }
 
 

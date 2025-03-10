@@ -4,7 +4,9 @@ resource "aws_s3_bucket" "session_logs_bucket" {
   # checkov:skip=CKV_AWS_145:v4 provider legacy
   bucket_prefix = "${var.bucket_name}-"
   force_destroy = true
-  tags          = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "70f2d3e6-770b-4e68-8833-18b6ee303c72"
+  })
 
 }
 
@@ -17,7 +19,7 @@ resource "aws_s3_bucket_ownership_controls" "session_logs_bucket" {
 
 resource "aws_s3_bucket_acl" "session_logs_bucket" {
   bucket = aws_s3_bucket.session_logs_bucket.id
-  acl = "private"
+  acl    = "private"
 
   depends_on = [aws_s3_bucket_ownership_controls.session_logs_bucket]
 }

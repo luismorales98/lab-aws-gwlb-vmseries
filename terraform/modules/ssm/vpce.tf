@@ -26,7 +26,9 @@ resource "aws_vpc_endpoint" "ssm" {
   ]
 
   private_dns_enabled = var.vpc_endpoint_private_dns_enabled
-  tags                = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "e3a6a08f-b15b-4d57-af6a-d875741f9da0"
+  })
 }
 
 resource "aws_vpc_endpoint" "ec2messages" {
@@ -41,7 +43,9 @@ resource "aws_vpc_endpoint" "ec2messages" {
   ]
 
   private_dns_enabled = var.vpc_endpoint_private_dns_enabled
-  tags                = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "57f8d360-1c4f-4d3c-9d2c-b2fbc8d0142c"
+  })
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
@@ -56,7 +60,9 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   ]
 
   private_dns_enabled = var.vpc_endpoint_private_dns_enabled
-  tags                = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "7a59af5c-29b0-4dc7-be94-8928ad2c6240"
+  })
 }
 
 # To write session logs to S3, an S3 endpoint is needed:
@@ -64,7 +70,9 @@ resource "aws_vpc_endpoint" "s3" {
   count        = var.vpc_endpoints_enabled && var.enable_log_to_s3 ? 1 : 0
   vpc_id       = var.vpc_id
   service_name = "com.amazonaws.${local.region}.s3"
-  tags         = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "87793ab4-6083-48df-ab29-41f26c6e4e15"
+  })
 }
 
 # Associate S3 Gateway Endpoint to VPC and Subnets
@@ -93,7 +101,9 @@ resource "aws_vpc_endpoint" "logs" {
   ]
 
   private_dns_enabled = var.vpc_endpoint_private_dns_enabled
-  tags                = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "7c8d41c8-88e9-4d63-a5cc-b17897025be6"
+  })
 }
 
 # To Encrypt/Decrypt, a KMS endpoint is needed
@@ -109,5 +119,7 @@ resource "aws_vpc_endpoint" "kms" {
   ]
 
   private_dns_enabled = var.vpc_endpoint_private_dns_enabled
-  tags                = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "34aa81a3-65c9-4486-b3a6-b47b05b7d504"
+  })
 }

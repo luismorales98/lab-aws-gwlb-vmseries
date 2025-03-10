@@ -50,6 +50,9 @@ resource "aws_lb_target_group" "this" {
     port     = "80"
     protocol = "TCP"
   }
+  tags = {
+    yor_trace = "a9be2d33-2bea-4560-97a9-ee3b0b426fd5"
+  }
 }
 
 locals {
@@ -86,7 +89,9 @@ resource "aws_lb" "this" {
   lifecycle {
     create_before_destroy = true
   }
-  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "60423ee0-608f-4179-aff4-ba6ac917577e"
+  })
 }
 
 resource "aws_lb_listener" "this" {
@@ -108,10 +113,12 @@ resource "aws_vpc_endpoint_service" "this" {
     for k, gwlb in var.gateway_load_balancers : k => gwlb
     if lookup(gwlb, "existing", null) != true ? true : false
   }
-  acceptance_required = false
+  acceptance_required        = false
   allowed_principals         = lookup(each.value, "allowed_principals", null) #["arn:aws:iam::632512868473:root"]
   gateway_load_balancer_arns = [aws_lb.this[each.key].arn]
-  tags                       = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "8b0b2c0d-d4e6-4d90-855e-20b85f3977c0"
+  })
 }
 
 resource "aws_vpc_endpoint" "this" {
@@ -123,5 +130,7 @@ resource "aws_vpc_endpoint" "this" {
     for subnet in each.value.subnet_names :
     var.subnets_map[subnet]
   ]
-  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "750c1a64-9a5e-4ba3-b8bb-009431c87737"
+  })
 }

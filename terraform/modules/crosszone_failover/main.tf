@@ -8,7 +8,9 @@ resource "aws_s3_bucket" "this" {
   bucket        = var.lambda_s3_bucket
   acl           = "private"
   force_destroy = true
-  tags          = merge(var.tags, { Name = var.lambda_s3_bucket })
+  tags = merge(var.tags, { Name = var.lambda_s3_bucket }, {
+    yor_trace = "5b7880a8-f483-45da-bd8e-c499000baf68"
+  })
 }
 
 resource "aws_s3_bucket_object" "this" {
@@ -17,6 +19,9 @@ resource "aws_s3_bucket_object" "this" {
   acl    = "private"
   source = "${var.lambda_file_location}/${var.lambda_file_name}"
   etag   = filemd5("${var.lambda_file_location}/${var.lambda_file_name}")
+  tags = {
+    yor_trace = "d5470a98-80ef-4625-ba6a-6c669edf8e0c"
+  }
 }
 
 
@@ -27,7 +32,9 @@ resource "aws_s3_bucket_object" "this" {
 resource "aws_iam_role" "lambda_exec" {
   name = "${var.prefix_name_tag}-lambda-exec"
   path = "/"
-  tags = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "9ee6257c-9aa1-4eb3-b69a-56aa3220876d"
+  })
 
   assume_role_policy = <<EOF
 {
@@ -99,6 +106,9 @@ resource "aws_lambda_function" "rt_failover" {
     security_group_ids = [var.sg_state["${var.prefix_name_tag}-pan-mgmt"]]
   }
 
+  tags = {
+    yor_trace = "c9fe3dfc-d534-43dd-b0a3-da6bc459345d"
+  }
 }
 
 
@@ -113,7 +123,9 @@ resource "aws_vpc_endpoint" "api" {
   private_dns_enabled = true
   # policy = todo
 
-  tags = merge(var.tags, { Name = "${var.prefix_name_tag}-apiendpoint" })
+  tags = merge(var.tags, { Name = "${var.prefix_name_tag}-apiendpoint" }, {
+    yor_trace = "e5eec30a-02b7-477f-978e-29a34971892f"
+  })
 }
 
 resource "aws_api_gateway_rest_api" "pan-failover" {
@@ -149,6 +161,9 @@ resource "aws_api_gateway_rest_api" "pan-failover" {
     ]
 }
 POLICY
+  tags = {
+    yor_trace = "7fc10125-0902-4111-bc94-f7684ea7995f"
+  }
 }
 
 resource "aws_api_gateway_resource" "pan-failover" {

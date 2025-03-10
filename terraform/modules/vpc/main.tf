@@ -64,8 +64,10 @@ resource "aws_vpc" "this" {
     for k, vpc in var.vpc : k => vpc
     if lookup(vpc, "existing", null) != true ? true : false
   }
-  cidr_block           = each.value.cidr_block
-  tags                 = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  cidr_block = each.value.cidr_block
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "3502962d-c66e-46cf-94af-0c7c32baf00b"
+  })
   enable_dns_hostnames = lookup(each.value, "enable_dns_hostnames", null)
   enable_dns_support   = lookup(each.value, "enable_dns_support", null)
   instance_tenancy     = lookup(each.value, "instance_tenancy", null)
@@ -97,7 +99,9 @@ resource "aws_internet_gateway" "this" {
     if lookup(vpc, "internet_gateway", null) == null ? true : vpc.internet_gateway // Defaults to true if not specified
   }
   vpc_id = local.combined_vpc["vpc_id"]
-  tags   = merge({ Name = "${var.prefix_name_tag}igw" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}igw" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "6c9af870-bb0b-4c69-8db2-5dfb44163a90"
+  })
 }
 
 #### Create Subnets ####
@@ -109,10 +113,12 @@ resource "aws_subnet" "this" {
   }
   cidr_block        = each.value.cidr
   availability_zone = "${var.region}${lookup(each.value, "az", null)}"
-  tags              = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
-  vpc_id            = local.combined_vpc["vpc_id"]
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "68d4fef0-b579-45ff-a577-d7ead231db0f"
+  })
+  vpc_id                  = local.combined_vpc["vpc_id"]
   map_public_ip_on_launch = lookup(each.value, "public_ip", null)
-  depends_on        = [aws_vpc_ipv4_cidr_block_association.this]
+  depends_on              = [aws_vpc_ipv4_cidr_block_association.this]
 }
 
 #### Create and associate Route tables #### 
@@ -120,7 +126,9 @@ resource "aws_subnet" "this" {
 resource "aws_route_table" "this" {
   for_each = var.vpc_route_tables
   vpc_id   = local.combined_vpc["vpc_id"]
-  tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "66ead403-b34a-4d8f-adb3-7e52aa174196"
+  })
 }
 
 resource "aws_route_table_association" "this" {
@@ -139,14 +147,18 @@ resource "aws_route_table_association" "this" {
 resource "aws_eip" "nat_eip" {
   for_each = var.nat_gateways
   vpc      = true
-  tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "f0827342-50fb-4c28-8692-7e75475f51c7"
+  })
 }
 
 resource "aws_nat_gateway" "this" {
   for_each      = var.nat_gateways
   allocation_id = aws_eip.nat_eip[each.key].id
   subnet_id     = local.combined_subnets[each.key]
-  tags          = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "a1281845-8e0b-4cdc-9f50-750d8b453985"
+  })
 }
 
 ############################################################
@@ -157,7 +169,9 @@ resource "aws_vpn_gateway" "this" {
   for_each        = var.vpn_gateways
   vpc_id          = lookup(each.value, "vpc_attached", null) != false ? local.combined_vpc["vpc_id"] : null // Default is to attach to VPC
   amazon_side_asn = each.value.amazon_side_asn
-  tags            = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "0cd530f0-a950-49bb-bc27-b535d277b822"
+  })
 }
 
 resource "aws_dx_gateway_association" "this" {
@@ -232,7 +246,9 @@ resource "aws_security_group" "this" {
     }
   }
 
-  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "89180632-cf2a-412b-ab5f-2dd2ce785ce8"
+  })
 
   lifecycle {
     create_before_destroy = true
@@ -264,7 +280,9 @@ resource "aws_vpc_endpoint" "interface" {
     local.combined_subnets[subnet]
   ]
   private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
-  tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "c024ed93-a0c8-4edd-951b-a35fb73f5264"
+  })
 }
 
 resource "aws_vpc_endpoint" "gateway" {
@@ -280,5 +298,7 @@ resource "aws_vpc_endpoint" "gateway" {
     aws_route_table.this[rt].id
   ]
   private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
-  tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "c0f3aaec-9f41-4072-a540-7c8e5d3e6109"
+  })
 }
