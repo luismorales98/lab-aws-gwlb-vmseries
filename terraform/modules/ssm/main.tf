@@ -8,7 +8,9 @@ resource "aws_kms_key" "ssmkey" {
   deletion_window_in_days = var.kms_key_deletion_window
   enable_key_rotation     = true
   policy                  = data.aws_iam_policy_document.kms_access.json
-  tags                    = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "5aabc0bb-51e4-423b-8cef-b7cbb8fce251"
+  })
 }
 
 resource "aws_kms_alias" "ssmkey" {
@@ -21,14 +23,18 @@ resource "aws_cloudwatch_log_group" "session_manager_log_group" {
   retention_in_days = var.cloudwatch_logs_retention
   kms_key_id        = aws_kms_key.ssmkey.arn
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "9147347b-66fc-4d39-bcd6-c07016fa81c3"
+  })
 }
 
 resource "aws_ssm_document" "session_manager_prefs" {
   name            = "SSM-SessionManagerRunShell"
   document_type   = "Session"
   document_format = "JSON"
-  tags            = var.tags
+  tags = merge(var.tags, {
+    yor_trace = "00c75cda-be3e-481b-bc90-f06603c72343"
+  })
 
   content = jsonencode({
     schemaVersion = "1.0"

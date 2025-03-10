@@ -37,6 +37,9 @@ resource "aws_iam_role" "vmseries" {
   ]
 }
 EOF
+  tags = {
+    yor_trace = "50c7a161-88fd-4ea9-aff6-4ca222ef9f5e"
+  }
 }
 
 resource "aws_iam_role_policy" "bootstrap_policy" {
@@ -85,7 +88,7 @@ data "aws_region" "current" {}
 
 resource "aws_iam_role_policy" "cloudwatch" {
   name = "${var.prefix_name_tag}vmseries-cloudwatch"
-  role   = aws_iam_role.vmseries.id
+  role = aws_iam_role.vmseries.id
 
   policy = <<EOF
 {
@@ -114,6 +117,9 @@ resource "aws_iam_instance_profile" "vmseries" {
   name = "${var.prefix_name_tag}vmseries"
   role = aws_iam_role.vmseries.id
   path = "/"
+  tags = {
+    yor_trace = "2ee2486b-6fe2-4dc2-bd09-3e5e6c8ec4de"
+  }
 }
 
 
@@ -162,7 +168,9 @@ resource "aws_network_interface" "this" {
       "Name" = format("%s", each.value.name)
     },
     var.tags
-  )
+    , {
+      yor_trace = "8bbe7788-d7be-4c5d-846e-975967c63dd2"
+  })
 }
 
 ###################
@@ -177,7 +185,9 @@ resource "aws_eip" "this" {
       "Name" = format("%s", each.value.eip)
     },
     var.tags,
-  )
+    {
+      yor_trace = "52f7cd06-507c-4c33-9ce3-3068f2d3a5b4"
+  })
 
   depends_on = [aws_instance.pa-vm-series]
 }
@@ -205,7 +215,9 @@ resource "aws_instance" "pa-vm-series" {
       "Name" = format("%s", each.value.name_tag)
     },
     var.tags, each.value.fw_tags
-  )
+    , {
+      yor_trace = "3bca2f77-adc0-4f85-8905-3f32541d0f9b"
+  })
 
   iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? each.value.iam_instance_profile : aws_iam_instance_profile.vmseries.id
   user_data = base64encode(join(";", compact(concat(
@@ -234,5 +246,5 @@ resource "aws_network_interface_attachment" "this" {
   network_interface_id = aws_network_interface.this[each.key].id
   device_index         = each.value.index
 
-  depends_on        = [aws_eip_association.this]
+  depends_on = [aws_eip_association.this]
 }

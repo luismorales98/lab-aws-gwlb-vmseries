@@ -73,7 +73,9 @@ resource "aws_ec2_transit_gateway" "this" {
   auto_accept_shared_attachments  = "enable"
   default_route_table_association = "disable"
   default_route_table_propagation = "disable"
-  tags                            = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "c130149a-6185-4289-877e-6cbdd96ad145"
+  })
 }
 
 ################
@@ -100,7 +102,9 @@ resource "aws_ec2_transit_gateway_route_table" "this" {
     if lookup(value, "existing", null) != true ? true : false
   }
   transit_gateway_id = local.combined_transit_gateways[each.value.tgw]
-  tags               = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "a73e9994-2d9c-49da-bb9f-27980f8e3da2"
+  })
 }
 
 
@@ -118,7 +122,9 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "this" {
   appliance_mode_support                          = lookup(each.value, "appliance_mode_support", null) != null ? each.value.appliance_mode_support : null
   transit_gateway_default_route_table_association = false
   transit_gateway_default_route_table_propagation = false
-  tags                                            = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "3ff43b17-dbb6-4708-9e1a-c51d85c6a0ad"
+  })
 }
 
 
@@ -147,7 +153,9 @@ resource "aws_ram_resource_share" "this" {
   for_each                  = { for name, tgw in var.transit_gateways : name => tgw if contains(keys(tgw), "shared_principals") }
   allow_external_principals = true
   name                      = "${var.prefix_name_tag}${each.value.name}"
-  tags                      = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}), {
+    yor_trace = "aa8a5d4d-265c-4873-bd1d-dda1c62f73c6"
+  })
 }
 
 # Associate TGW to Share
